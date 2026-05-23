@@ -24,13 +24,13 @@ const Sidebar = ({ openSidebar, name }) => {
 
       {/* Menu */}
       <div className="p-5 space-y-3">
-        <MenuItem title="🏠 Dashboard" path="/dashboard" />
+        <MenuItem title="ashboard" path="/dashboard" />
 
-        <MenuItem title="💰 Add Money" path="/add-money" />
+        <MenuItem title="Add Money" path="/add-money" />
 
         <MenuItem title="🔄 Transfer Money" path="/transfer-money" />
 
-        <MenuItem title="📄 Transactions" path="/transactions" />
+        <MenuItem title="📄 Transactions" path="/history" />
       </div>
 
       {/* Logout */}

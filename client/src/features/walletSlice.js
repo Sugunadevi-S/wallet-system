@@ -41,6 +41,25 @@ export const addMoney = createAsyncThunk(
   },
 );
 
+export const transferMoney = createAsyncThunk(
+  "wallet/transferMoney",
+  async (data, { rejectWithValue }) => {
+    try {
+      console.log("Transferring money with data:", data);
+      const token = localStorage.getItem("token");
+      const response = await axios.post(`${API}/transfer`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      localStorage.setItem("token", response.data.token);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  },
+);
+
 const walletSlice = createSlice({
   name: "wallet",
   initialState: {
@@ -62,6 +81,12 @@ const walletSlice = createSlice({
       })
       .addCase(addMoney.rejected, (state, action) => {
         state.error = action.payload.message || "Failed to add money";
+      })
+      .addCase(transferMoney.fulfilled, (state, action) => {
+        state.balance = action.payload.balance;
+      })
+      .addCase(transferMoney.rejected, (state, action) => {
+        state.error = action.payload.message || "Failed to transfer money";
       });
   },
 });

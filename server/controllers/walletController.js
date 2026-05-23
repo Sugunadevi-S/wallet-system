@@ -38,3 +38,44 @@ exports.addMoney = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// TRANSFER MONEY
+exports.transferMoney = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { receiverEmail, amount } = req.body;
+    await client.query("BEGIN");
+    const sender = await client.query("SELECT * FROM users WHERE id=$1", [
+      req.user.id,
+    ]);
+    const receiver = await client.query("SELECT * FROM users WHERE email=$1", [
+      receiverEmail,
+    ]);
+    if (receiver.rows.length === 0) {
+      throw new Error("Receiver not found");
+    }
+    if (Number(sender.rows[0].balance) < amount) {
+      throw new Error("Insufficient balance");
+    }
+    await client.query("UPDATE users SET balance = balance - $1 WHERE id=$2", [
+      amount,
+      req.user.id,
+    ]);
+    await client.query("UPDATE users SET balance = balance + $1 WHERE id=$2", [
+      amount,
+      receiver.rows[0].id,
+    ]);
+    await client.query(
+      `INSERT INTO transactions (sender_id, receiver_id, type, amount)
+       VALUES ($1, $2, $3, $4)`,
+      [req.user.id, receiver.rows[0].id, "TRANSFER", amount],
+    );
+    await client.query("COMMIT");
+    res.json({ message: "Transfer successful" });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    res.status(400).json({ message: error.message });
+  } finally {
+    client.release();
+  }
+};
