@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { addMoney } from "../features/walletSlice";
+import { addMoney } from "../redux/walletSlice";
 import { useDispatch } from "react-redux";
 
 const AddMoney = () => {
@@ -10,7 +9,6 @@ const AddMoney = () => {
   const handleAddMoney = async () => {
     try {
       await dispatch(addMoney({ amount }));
-
       alert("Money Added");
       setAmount("");
     } catch (error) {

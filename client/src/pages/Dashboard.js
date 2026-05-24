@@ -1,7 +1,6 @@
-// Dashboard.js
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getProfile } from "../features/walletSlice";
+import { getProfile } from "../redux/walletSlice";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -18,7 +17,6 @@ const Dashboard = () => {
         Wallet Balance
       </h2>
 
-      {/* Balance Card */}
       <div className="w-[500px] bg-gradient-to-r from-blue-500 to-blue-700 rounded-3xl p-8 text-white shadow-lg">
         <p className="text-lg opacity-90">Total Balance</p>
 

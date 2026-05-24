@@ -47,7 +47,6 @@ const Register = () => {
     } catch (error) {
       console.log(error);
 
-      // BACKEND ERROR MESSAGE
       if (error.response && error.response.data.message) {
         alert(error.response.data.message);
       } else {
@@ -69,6 +68,7 @@ const Register = () => {
             </label>
 
             <input
+              required
               type="text"
               name="name"
               value={formData.name}
@@ -84,6 +84,7 @@ const Register = () => {
             </label>
 
             <input
+              required
               type="email"
               name="email"
               value={formData.email}
@@ -99,6 +100,7 @@ const Register = () => {
             </label>
 
             <input
+              required
               type="password"
               name="password"
               value={formData.password}
@@ -114,6 +116,7 @@ const Register = () => {
             </label>
 
             <input
+              required
               type="password"
               name="confirmPassword"
               value={formData.confirmPassword}

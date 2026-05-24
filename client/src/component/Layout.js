@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
-import { getProfile } from "../features/walletSlice";
+import { getProfile } from "../redux/walletSlice";
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -12,9 +12,10 @@ const Layout = () => {
 
   const { name } = useSelector((state) => state.wallet);
 
+  //Getting profile for name display in sidebar and navbar
   useEffect(() => {
     dispatch(getProfile());
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="flex bg-[#f4f7fc] min-h-screen">
@@ -34,7 +35,7 @@ const Layout = () => {
         {/* Navbar */}
         <Navbar setOpenSidebar={setOpenSidebar} name={name} />
 
-        {/* THIS IS IMPORTANT */}
+        {/* Outlet */}
         <div className="p-5 lg:p-8">
           <Outlet />
         </div>

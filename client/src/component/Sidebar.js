@@ -1,8 +1,20 @@
 // Sidebar.js
 import React from "react";
 import MenuItem from "./MenuItem";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../redux/authSlice";
 
 const Sidebar = ({ openSidebar, name }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Logout handler
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
+  };
+
   return (
     <div
       className={`
@@ -13,7 +25,6 @@ const Sidebar = ({ openSidebar, name }) => {
         ${openSidebar ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
     >
-      {/* Logo */}
       <div className="p-6 border-b border-gray-700">
         <h1 className="text-3xl font-bold text-blue-400">
           {name?.toUpperCase()}
@@ -22,20 +33,21 @@ const Sidebar = ({ openSidebar, name }) => {
         <p className="text-gray-300 mt-1">Digital Wallet</p>
       </div>
 
-      {/* Menu */}
       <div className="p-5 space-y-3">
-        <MenuItem title="ashboard" path="/dashboard" />
+        <MenuItem title="Dashboard" path="/dashboard" />
 
         <MenuItem title="Add Money" path="/add-money" />
 
-        <MenuItem title="🔄 Transfer Money" path="/transfer-money" />
+        <MenuItem title="Transfer Money" path="/transfer-money" />
 
-        <MenuItem title="📄 Transactions" path="/history" />
+        <MenuItem title="Transactions" path="/history" />
       </div>
 
-      {/* Logout */}
       <div className="absolute bottom-6 left-5 right-5">
-        <button className="w-full bg-red-500 hover:bg-red-600 py-3 rounded-xl transition">
+        <button
+          className="w-full bg-red-500 hover:bg-red-600 py-3 rounded-xl transition"
+          onClick={handleLogout}
+        >
           Logout
         </button>
       </div>

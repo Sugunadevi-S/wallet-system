@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../redux/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -21,21 +22,16 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        formData,
-      );
+      const resultAction = await dispatch(loginUser(formData));
 
-      // SUCCESS
-      if (response.data.success) {
-        // Save JWT token
-        localStorage.setItem("token", response.data.token);
-
-        // Optional user data
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-
-        // Navigate to dashboard
+      if (loginUser.fulfilled.match(resultAction)) {
         navigate("/dashboard");
+      } else {
+        const message =
+          resultAction.payload?.message ||
+          resultAction.error?.message ||
+          "Login failed";
+        alert(message);
       }
     } catch (error) {
       console.log(error);
@@ -54,7 +50,6 @@ const Login = () => {
         <h1 className="text-4xl font-bold text-center mb-10">Login</h1>
 
         <form onSubmit={handleSubmit}>
-          {/* Email */}
           <div className="mb-6">
             <label className="block text-[18px] mb-2 text-gray-700">
               <span className="text-red-500">*</span> Email
@@ -69,7 +64,6 @@ const Login = () => {
             />
           </div>
 
-          {/* Password */}
           <div className="mb-8">
             <label className="block text-[18px] mb-2 text-gray-700">
               <span className="text-red-500">*</span> Password
@@ -86,7 +80,6 @@ const Login = () => {
 
           <hr className="mb-8 border-gray-300" />
 
-          {/* Login Button */}
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg transition duration-200"

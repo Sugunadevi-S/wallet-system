@@ -1,21 +1,29 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useDispatch } from "react-redux";
-import { transferMoney } from "../features/walletSlice";
+import { transferMoney } from "../redux/walletSlice";
 
 const TransferMoney = () => {
   const dispatch = useDispatch();
   const [receiverEmail, setReceiverEmail] = useState("");
   const [amount, setAmount] = useState("");
 
+  // using wallet state directly when needed; removed unused `error` variable to fix lint warning
+
   const handleTransferMoney = async () => {
     try {
-      await dispatch(transferMoney({ receiverEmail, amount }));
-      alert("Transfer Successful");
+      await dispatch(
+        transferMoney({
+          receiverEmail,
+          amount,
+        }),
+      ).unwrap();
+
+      alert("Transfer successful");
+
       setReceiverEmail("");
       setAmount("");
     } catch (error) {
-      console.log(error);
+      alert(error?.message || error || "Transfer failed");
     }
   };
 

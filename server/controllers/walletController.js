@@ -4,7 +4,6 @@ const pool = require("../config/db");
 exports.getBalance = async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log("Fetching balance for user ID:", userId);
     const result = await pool.query(
       "SELECT name,balance FROM users WHERE id=$1",
       [userId],
@@ -42,39 +41,81 @@ exports.addMoney = async (req, res) => {
 // TRANSFER MONEY
 exports.transferMoney = async (req, res) => {
   const client = await pool.connect();
+
   try {
     const { receiverEmail, amount } = req.body;
+
     await client.query("BEGIN");
+
+    // Sender
     const sender = await client.query("SELECT * FROM users WHERE id=$1", [
       req.user.id,
     ]);
+
+    // Receiver
     const receiver = await client.query("SELECT * FROM users WHERE email=$1", [
       receiverEmail,
     ]);
+
+    // 1. Receiver not found
     if (receiver.rows.length === 0) {
-      throw new Error("Receiver not found");
+      return res.status(400).json({
+        message: "Receiver not found",
+      });
     }
-    if (Number(sender.rows[0].balance) < amount) {
-      throw new Error("Insufficient balance");
+
+    // 2. Cannot transfer to self
+    if (sender.rows[0].email === receiverEmail) {
+      return res.status(400).json({
+        message: "You cannot transfer money to yourself",
+      });
     }
+
+    // 3. Amount must be greater than 0
+    if (Number(amount) <= 0) {
+      return res.status(400).json({
+        message: "Amount must be greater than zero",
+      });
+    }
+
+    // 4. Insufficient balance
+    if (Number(sender.rows[0].balance) < Number(amount)) {
+      return res.status(400).json({
+        message: "Insufficient balance",
+      });
+    }
+
+    // Deduct sender balance
     await client.query("UPDATE users SET balance = balance - $1 WHERE id=$2", [
       amount,
       req.user.id,
     ]);
+
+    // Add receiver balance
     await client.query("UPDATE users SET balance = balance + $1 WHERE id=$2", [
       amount,
       receiver.rows[0].id,
     ]);
+
+    // Insert transaction
     await client.query(
-      `INSERT INTO transactions (sender_id, receiver_id, type, amount)
-       VALUES ($1, $2, $3, $4)`,
+      `INSERT INTO transactions
+      (sender_id, receiver_id, type, amount)
+      VALUES ($1, $2, $3, $4)`,
       [req.user.id, receiver.rows[0].id, "TRANSFER", amount],
     );
+
     await client.query("COMMIT");
-    res.json({ message: "Transfer successful" });
+
+    res.json({
+      message: "Transfer successful",
+    });
   } catch (error) {
     await client.query("ROLLBACK");
-    res.status(400).json({ message: error.message });
+
+    res.status(500).json({
+      message: error.message,
+    });
   } finally {
     client.release();
   }
